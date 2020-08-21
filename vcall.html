@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>p2p test</title>
+</head>
+<body>
+    <div>current id:<input type='text' id='mid'/></div>
+    <input type="text" id='pid'/>
+    <button id='submit'>submit</button>
+    <video id="video">
+
+    </video>
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <script>
+        var peer = new Peer();
+        peer.on('open',function(id){
+            document.getElementById('mid').value = id;
+        })
+        var input = document.getElementById('pid')
+        var button = document.getElementById('submit')
+        var video = document.getElementById('video')
+        var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+        //answering call
+        peer.on('call', function(call) {
+            getUserMedia({video: true, audio: true}, function(stream) {
+                call.answer(stream); // Answer the call with an A/V stream.
+                call.on('stream', function(remoteStream) {
+                    video.autoplay = true;
+                    video.srcObject = remoteStream;
+                });
+            }, function(err) {
+                console.log('Failed to get local stream' ,err);
+            });
+        });
+        button.addEventListener('click',function(e){
+            id = input.value
+            getUserMedia({video: true, audio: true}, function(stream) {
+                var call = peer.call(id, stream);
+                call.on('stream', function(remoteStream) {
+                    video.autoplay = true;
+                    video.srcObject = remoteStream;
+                });
+                }, function(err) {
+                console.log('Failed to get local stream' ,err);
+            });
+        })
+    </script>
+</body>
+</html>
